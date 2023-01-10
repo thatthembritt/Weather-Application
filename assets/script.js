@@ -1,62 +1,65 @@
-let dayDataDiv = document.getElementById("dayData");
-let forecastDiv = document.getElementById("forecastDiv");
-let searchBtn = document.getElementById("searchBtn");
-let searchHistoryArr = JSON.parse(localStorage.getItem("historyArr")) || [];
+const searchBtn = document.getElementById("searchBtn");
+const searchHistoryArr = JSON.parse(localStorage.getItem("historyArr")) || [];
 
 function createButton(cityName) {
-  var historyButton = document.createElement("button");
+  const historyButton = document.createElement("button");
   historyButton.textContent = cityName;
-  let historyDiv = document.getElementById("history");
-  historyButton.addEventListener("click", function () {
-    dayDataDiv.innerHTML = "";
+  const historyDiv = document.getElementById("history");
 
-    let apiKey = "2dde65710100afa34ad3b9db2e765df8";
-    console.log(cityName);
-    let searchURL =
-      "https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${keyid}=${apiKey}&units=imperial";
-    fetch(searchURL)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        let cityNameDiv = document.createElement("div");
-        cityNameDiv.innerHTML = data.name;
-
-        let todaysDate = document.createElement("div");
-        todaysDate.innerHTML = data.main.temp;
-
-        let tempDiv = document.createElement("div");
-        tempDiv.innerHTML = data.main.temp;
-
-        let humidityDiv = document.createElement("div");
-        humidityDiv.innerHTML = data.main.humidity;
-
-        let windDiv = document.createElement("div");
-        windDiv.innerHTML = data.wind.speed;
-
-        let iconDiv = document.createElement("img");
-        iconDiv.setAttribute(
-          "src",
-          "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png"
-        );
-        iconDiv.setAttribute("class", "iconStyle");
-        dayDataDiv.append(
-          cityNameDiv,
-          tempDiv,
-          humidityDiv,
-          windDiv,
-          todaysDate,
-          iconDiv
-        );
-      });
-    retrieveForecastData(cityName);
+  historyButton.addEventListener("click", () => {
+    getWeatherData(cityName);
   });
-  historyDiv.append(historyButton);
+
+  historyDiv.appendChild(historyButton);
 }
-for (let index = 0; index < searchHistoryArr.length; index++) {
-  createButton(searchHistoryArr[index]);
+
+searchHistoryArr.forEach((cityName) => createButton(cityName));
+
+function getWeatherData(cityName) {
+  const apiKey = "b7fbf615641171c9610ddf5ae4bbd20c";
+  const searchURL = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=imperial`;
+
+  fetch(searchURL)
+    .then((response) => response.json())
+    .then((data) => {
+      updateTodayData(data);
+      retrieveForecastData(cityName);
+    });
 }
-function getWeather(event) {
-  event.preventDefault();
+
+function updateTodayData(data) {
+  const cityNameDiv = document.createElement("div");
+  cityNameDiv.innerHTML = data.name;
+
+  const todaysDate = document.createElement("div");
+  todaysDate.innerHTML = moment.unix(data.dt).format("MM/DD/YY");
+
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = data.main.temp;
+
+  const humidityDiv = document.createElement("div");
+  humidityDiv.innerHTML = data.main.humidity;
+
+  const windDiv = document.createElement("div");
+  windDiv.innerHTML = data.wind.speed;
+
+  const iconDiv = document.createElement("img");
+  iconDiv.setAttribute(
+    "src",
+    "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png"
+  );
+  iconDiv.setAttribute("class", "iconStyle");
+
+  const dayDataDiv = document.getElementById("dayData");
   dayDataDiv.innerHTML = "Today's Forecast";
-  let cityName = document.querySelector("#cityName").value;
+  dayDataDiv.append(cityNameDiv, tempDiv, humidityDiv, windDiv, todaysDate, iconDiv);
 }
+
+searchBtn.addEventListener("click", (event) => {
+  event.preventDefault();
+  const cityName = document.querySelector("#cityName").value;
+  createButton(cityName);
+  searchHistoryArr.push(cityName);
+  localStorage.setItem("searchHistoryArr", JSON.stringify(searchHistoryArr));
+  getWeatherData(cityName);
+});

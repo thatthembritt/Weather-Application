@@ -1,0 +1,32 @@
+searchBtn {
+  display: block;
+  width: 150px;
+  height: 50px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin: 5px;
+}
+
+searchBtn:hover {
+  background-color: #eee;
+}
+
+#history {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#dayData,
+#forecastDiv {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.iconStyle {
+  width: 50px;
+  height: 50px;
+}
